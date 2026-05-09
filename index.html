@@ -1,174 +1,538 @@
-id: mobile-online-lite
-name: GitHub Pages 最终版工资提成页
+id: wage-system-web
+name: 终极全自动工资提成系统_网页版
 type: html
 content: |-
   <!DOCTYPE html>
   <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <title>工资提成系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>终极全自动工资提成系统 - 邀约成单版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body{
-        font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .card{box-shadow:0 8px 24px rgba(0,0,0,.06)}
-      .inp{
-        width:100%;
-        border:1px solid #cbd5e1;
-        border-radius:14px;
-        padding:12px 14px;
-        font-size:16px;
-        outline:none;
-        background:#fff;
-      }
-      .inp:focus{
-        border-color:#2563eb;
-        box-shadow:0 0 0 3px rgba(37,99,235,.12);
-      }
-      .btn{
-        border-radius:14px;
-        padding:12px 14px;
-        font-weight:700;
-      }
-      table{width:100%;border-collapse:collapse}
-      th,td{
-        border-bottom:1px solid #e2e8f0;
-        padding:10px 8px;
-        text-align:left;
-        font-size:14px;
-        vertical-align:middle;
-      }
-      th{background:#f8fafc}
-      .small{font-size:12px;color:#64748b}
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .tab-active { background: #2563eb; color: #fff; }
+      .table-input { width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 8px; outline: none; }
+      .table-input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.12); }
+      .card { box-shadow: 0 4px 20px rgba(0,0,0,.04); }
+      .sticky-head thead th { position: sticky; top: 0; background: #f9fafb; z-index: 5; }
     </style>
   </head>
-  <body class="bg-slate-100 text-slate-800">
-    <div class="max-w-md mx-auto min-h-screen p-3 pb-8">
-      <div class="bg-white rounded-2xl p-4 card">
-        <h1 class="text-xl font-bold">工资提成系统</h1>
-        <p class="text-sm text-slate-500 mt-1">手机打开即用，适合极简录入</p>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 mt-3">
-        <div class="bg-white rounded-2xl p-4 card">
-          <div class="small">订单总额</div>
-          <div id="sumOrder" class="text-2xl font-bold mt-2">0</div>
-        </div>
-        <div class="bg-white rounded-2xl p-4 card">
-          <div class="small">预计提成</div>
-          <div id="sumCom" class="text-2xl font-bold mt-2">0</div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl p-4 card mt-3">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-bold">订单录入</h2>
-          <button id="addRow" class="btn bg-blue-600 text-white">+ 增加</button>
-        </div>
-        <div id="rows" class="space-y-3"></div>
-        <button id="calc" class="btn bg-emerald-600 text-white w-full mt-3">重新计算</button>
-        <p class="small mt-2">规则：金额 ≥ 10000 奖 50；金额 ≥ 15000 奖 150；提成默认按 5% 估算。</p>
-      </div>
-
-      <div class="bg-white rounded-2xl p-4 card mt-3">
-        <h2 class="text-lg font-bold mb-3">工资汇总</h2>
-        <div class="overflow-auto rounded-2xl border border-slate-200">
-          <table>
-            <thead>
-              <tr>
-                <th>姓名</th>
-                <th>订单数</th>
-                <th>提成</th>
-                <th>奖金</th>
-                <th>合计</th>
-              </tr>
-            </thead>
-            <tbody id="sumBody"></tbody>
-          </table>
+  <body class="bg-slate-50 text-slate-800">
+    <div class="max-w-7xl mx-auto p-4 md:p-6">
+      <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold">实体店终极全自动工资系统</h1>
+            <p class="text-slate-500 mt-2">邀约成单版 · 订单 / 考勤 / 提成 / 工资汇总 / 工资条 / 奖励规则</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="home">首页</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="orders">订单录入</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="attendance">钉钉考勤</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="split">提成拆分</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="summary">工资汇总</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="analysis">数据分析</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="rules">奖励规则</button>
+            <button class="tab-btn px-4 py-2 rounded-lg border" data-tab="invite">邀约成单奖励</button>
+          </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl p-4 card mt-3">
-        <h2 class="text-lg font-bold mb-2">使用说明</h2>
-        <p class="text-sm leading-7 text-slate-600">1. 点“增加”添加订单。</p>
-        <p class="text-sm leading-7 text-slate-600">2. 输入员工姓名和金额。</p>
-        <p class="text-sm leading-7 text-slate-600">3. 点“重新计算”。</p>
-        <p class="text-sm leading-7 text-slate-600">4. 直接看汇总结果。</p>
-      </div>
+      <!-- 首页 -->
+      <section id="tab-home" class="tab-panel mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <h2 class="text-xl font-semibold mb-4">功能说明</h2>
+          <ol class="list-decimal pl-6 space-y-2 text-slate-700">
+            <li>粘贴钉钉考勤 CSV 到【钉钉考勤】</li>
+            <li>粘贴订单到【订单录入】</li>
+            <li>系统自动拆分提成</li>
+            <li>自动生成工资汇总</li>
+            <li>自动生成工资条</li>
+          </ol>
+
+          <div class="mt-6 grid md:grid-cols-3 gap-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div class="text-sm text-blue-700">当前员工数</div>
+              <div id="homeEmpCount" class="text-2xl font-bold mt-1">4</div>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+              <div class="text-sm text-emerald-700">订单总金额</div>
+              <div id="homeOrderTotal" class="text-2xl font-bold mt-1">0</div>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div class="text-sm text-amber-700">预计总提成</div>
+              <div id="homeCommissionTotal" class="text-2xl font-bold mt-1">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 订单录入 -->
+      <section id="tab-orders" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">订单录入</h2>
+            <button id="addOrderRow" class="px-4 py-2 rounded-lg bg-blue-600 text-white">+ 添加一行</button>
+          </div>
+          <div class="overflow-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm sticky-head">
+              <thead>
+                <tr class="text-left">
+                  <th class="p-3">日期</th>
+                  <th class="p-3">客户</th>
+                  <th class="p-3">订单金额</th>
+                  <th class="p-3">接待</th>
+                  <th class="p-3">邀约</th>
+                  <th class="p-3">异业带单</th>
+                  <th class="p-3">备注</th>
+                  <th class="p-3">操作</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 考勤 -->
+      <section id="tab-attendance" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">钉钉考勤</h2>
+            <button id="addAttendanceRow" class="px-4 py-2 rounded-lg bg-blue-600 text-white">+ 添加一行</button>
+          </div>
+          <div class="overflow-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm sticky-head">
+              <thead>
+                <tr class="text-left">
+                  <th class="p-3">员工</th>
+                  <th class="p-3">出勤天数</th>
+                  <th class="p-3">迟到次数</th>
+                  <th class="p-3">请假</th>
+                  <th class="p-3">加班小时</th>
+                  <th class="p-3">操作</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 提成拆分 -->
+      <section id="tab-split" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">提成拆分</h2>
+            <button id="recalcBtn" class="px-4 py-2 rounded-lg bg-emerald-600 text-white">重新计算</button>
+          </div>
+          <div class="overflow-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm sticky-head">
+              <thead>
+                <tr class="text-left">
+                  <th class="p-3">日期</th>
+                  <th class="p-3">员工</th>
+                  <th class="p-3">类型</th>
+                  <th class="p-3">订单金额</th>
+                  <th class="p-3">提成比例</th>
+                  <th class="p-3">提成金额</th>
+                  <th class="p-3">大单奖</th>
+                </tr>
+              </thead>
+              <tbody id="splitTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 工资汇总 -->
+      <section id="tab-summary" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <h2 class="text-xl font-semibold mb-4">工资汇总</h2>
+          <div class="overflow-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm sticky-head">
+              <thead>
+                <tr class="text-left">
+                  <th class="p-3">员工</th>
+                  <th class="p-3">底薪</th>
+                  <th class="p-3">提成</th>
+                  <th class="p-3">迟到扣款</th>
+                  <th class="p-3">大单奖</th>
+                  <th class="p-3">邀约数</th>
+                  <th class="p-3">成单数</th>
+                  <th class="p-3">邀约奖励</th>
+                  <th class="p-3">成单奖励</th>
+                  <th class="p-3 font-semibold">最终工资</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 工资条 -->
+      <section id="tab-payslip" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <h2 class="text-xl font-semibold mb-4">工资条</h2>
+          <div id="payslipGrid" class="grid md:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- 数据分析 -->
+      <section id="tab-analysis" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <h2 class="text-xl font-semibold mb-4">数据分析</h2>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="border rounded-xl p-4">
+              <div class="text-slate-500 text-sm">总提成</div>
+              <div id="analysisCommission" class="text-2xl font-bold mt-1">0</div>
+            </div>
+            <div class="border rounded-xl p-4">
+              <div class="text-slate-500 text-sm">总工资</div>
+              <div id="analysisWage" class="text-2xl font-bold mt-1">0</div>
+            </div>
+            <div class="border rounded-xl p-4">
+              <div class="text-slate-500 text-sm">员工人数</div>
+              <div id="analysisEmpCount" class="text-2xl font-bold mt-1">4</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 奖励规则 -->
+      <section id="tab-rules" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <h2 class="text-xl font-semibold mb-4">奖励规则</h2>
+          <div class="overflow-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="text-left bg-slate-50">
+                  <th class="p-3">奖励类型</th>
+                  <th class="p-3">规则</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t">
+                  <td class="p-3">大单奖</td>
+                  <td class="p-3">订单总金额 ≥ 10000 奖励 50</td>
+                </tr>
+                <tr class="border-t">
+                  <td class="p-3">超级大单奖</td>
+                  <td class="p-3">订单总金额 ≥ 15000 奖励 150</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 邀约成单奖励 -->
+      <section id="tab-invite" class="tab-panel hidden mt-6">
+        <div class="bg-white rounded-2xl p-6 card border border-slate-200">
+          <h2 class="text-xl font-semibold mb-4">邀约成单奖励</h2>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="border rounded-xl p-4">
+              <h3 class="font-semibold mb-3">邀约客户奖励</h3>
+              <table class="w-full text-sm">
+                <thead><tr class="text-left bg-slate-50"><th class="p-2">指标</th><th class="p-2">奖励</th></tr></thead>
+                <tbody>
+                  <tr class="border-t"><td class="p-2">20</td><td class="p-2">200</td></tr>
+                  <tr class="border-t"><td class="p-2">30</td><td class="p-2">400</td></tr>
+                  <tr class="border-t"><td class="p-2">35</td><td class="p-2">500</td></tr>
+                  <tr class="border-t"><td class="p-2">45</td><td class="p-2">700</td></tr>
+                  <tr class="border-t"><td class="p-2">55</td><td class="p-2">800</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border rounded-xl p-4">
+              <h3 class="font-semibold mb-3">月成单奖励</h3>
+              <table class="w-full text-sm">
+                <thead><tr class="text-left bg-slate-50"><th class="p-2">指标</th><th class="p-2">奖励</th></tr></thead>
+                <tbody>
+                  <tr class="border-t"><td class="p-2">10</td><td class="p-2">500</td></tr>
+                  <tr class="border-t"><td class="p-2">15</td><td class="p-2">800</td></tr>
+                  <tr class="border-t"><td class="p-2">20</td><td class="p-2">1000</td></tr>
+                  <tr class="border-t"><td class="p-2">25</td><td class="p-2">1200</td></tr>
+                  <tr class="border-t"><td class="p-2">30</td><td class="p-2">1500</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mt-6 text-sm text-slate-600 leading-7">
+            <p>规则说明：</p>
+            <ul class="list-disc pl-6">
+              <li>红色目标为重点目标</li>
+              <li>未完成按对应等级奖罚</li>
+              <li>单值需 2000 元以上</li>
+              <li>目标仅限灯具、智能，不含窗帘</li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
 
     <script>
-      const data = [{ name: "", amount: "" }];
-      const money = n => Number(n || 0).toFixed(0);
+      const employees = [
+        { name: "平", base: 2000 },
+        { name: "丽", base: 2000 },
+        { name: "林", base: 2000 },
+        { name: "红", base: 2000 },
+      ];
 
-      function render() {
-        document.getElementById("rows").innerHTML = data.map((r, i) => `
-          <div class="border border-slate-200 rounded-2xl p-3 space-y-2">
-            <input class="inp" placeholder="员工姓名" value="${r.name}" data-i="${i}" data-k="name">
-            <input class="inp" type="number" placeholder="订单金额" value="${r.amount}" data-i="${i}" data-k="amount">
-            <button class="btn bg-rose-500 text-white w-full" data-del="${i}">删除这一条</button>
-          </div>
-        `).join("");
+      let orders = [
+        { date: "", customer: "", amount: 0, recep: "", invite: "", partner: "", note: "" }
+      ];
+
+      let attendance = [
+        { name: "平", days: 0, late: 0, leave: 0, overtime: 0 },
+        { name: "丽", days: 0, late: 0, leave: 0, overtime: 0 },
+        { name: "林", days: 0, late: 0, leave: 0, overtime: 0 },
+        { name: "红", days: 0, late: 0, leave: 0, overtime: 0 },
+      ];
+
+      const commissionRate = 0.05;
+
+      function money(n) {
+        return Number(n || 0).toFixed(2);
       }
 
-      function calc() {
-        const totalOrder = data.reduce((s, r) => s + Number(r.amount || 0), 0);
-        const totalCom = data.reduce((s, r) => s + Number(r.amount || 0) * 0.05, 0);
+      function latePenalty(late) {
+        return Number(late || 0) * 20;
+      }
 
-        document.getElementById("sumOrder").textContent = money(totalOrder);
-        document.getElementById("sumCom").textContent = money(totalCom);
+      function bigOrderReward(total) {
+        if (total >= 15000) return 150;
+        if (total >= 10000) return 50;
+        return 0;
+      }
 
-        const map = {};
-        data.forEach(r => {
-          const name = (r.name || "未填").trim() || "未填";
-          const a = Number(r.amount || 0);
-          const bonus = a >= 15000 ? 150 : a >= 10000 ? 50 : 0;
-          const comm = a * 0.05;
-          if (!map[name]) map[name] = { count: 0, comm: 0, bonus: 0 };
-          map[name].count += 1;
-          map[name].comm += comm;
-          map[name].bonus += bonus;
+      function calcInviteReward(count) {
+        const rules = [
+          [55, 800], [45, 700], [35, 500], [30, 400], [20, 200]
+        ];
+        for (const [k, v] of rules) if (count >= k) return v;
+        return 0;
+      }
+
+      function calcDealReward(count) {
+        const rules = [
+          [30, 1500], [25, 1200], [20, 1000], [15, 800], [10, 500]
+        ];
+        for (const [k, v] of rules) if (count >= k) return v;
+        return 0;
+      }
+
+      function renderOrders() {
+        const tbody = document.getElementById("ordersTbody");
+        tbody.innerHTML = "";
+        orders.forEach((o, i) => {
+          const tr = document.createElement("tr");
+          tr.className = "border-t";
+          tr.innerHTML = `
+            <td class="p-2"><input class="table-input" value="${o.date}" data-i="${i}" data-k="date"></td>
+            <td class="p-2"><input class="table-input" value="${o.customer}" data-i="${i}" data-k="customer"></td>
+            <td class="p-2"><input class="table-input" type="number" value="${o.amount}" data-i="${i}" data-k="amount"></td>
+            <td class="p-2"><input class="table-input" value="${o.recep}" data-i="${i}" data-k="recep"></td>
+            <td class="p-2"><input class="table-input" value="${o.invite}" data-i="${i}" data-k="invite"></td>
+            <td class="p-2"><input class="table-input" value="${o.partner}" data-i="${i}" data-k="partner"></td>
+            <td class="p-2"><input class="table-input" value="${o.note}" data-i="${i}" data-k="note"></td>
+            <td class="p-2"><button class="px-3 py-2 rounded-lg bg-rose-500 text-white delete-order" data-i="${i}">删除</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderAttendance() {
+        const tbody = document.getElementById("attendanceTbody");
+        tbody.innerHTML = "";
+        attendance.forEach((a, i) => {
+          const tr = document.createElement("tr");
+          tr.className = "border-t";
+          tr.innerHTML = `
+            <td class="p-2"><input class="table-input" value="${a.name}" data-ai="${i}" data-ak="name"></td>
+            <td class="p-2"><input class="table-input" type="number" value="${a.days}" data-ai="${i}" data-ak="days"></td>
+            <td class="p-2"><input class="table-input" type="number" value="${a.late}" data-ai="${i}" data-ak="late"></td>
+            <td class="p-2"><input class="table-input" type="number" value="${a.leave}" data-ai="${i}" data-ak="leave"></td>
+            <td class="p-2"><input class="table-input" type="number" value="${a.overtime}" data-ai="${i}" data-ak="overtime"></td>
+            <td class="p-2"><button class="px-3 py-2 rounded-lg bg-rose-500 text-white delete-att" data-ai="${i}">删除</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderAll() {
+        const totalOrder = orders.reduce((s, o) => s + Number(o.amount || 0), 0);
+        const totalCommission = totalOrder * commissionRate;
+        document.getElementById("homeEmpCount").textContent = employees.length;
+        document.getElementById("homeOrderTotal").textContent = money(totalOrder);
+        document.getElementById("homeCommissionTotal").textContent = money(totalCommission);
+        document.getElementById("analysisCommission").textContent = money(totalCommission);
+        document.getElementById("analysisEmpCount").textContent = employees.length;
+
+        renderOrders();
+        renderAttendance();
+        renderSplit();
+        renderSummary();
+        renderPayslip();
+      }
+
+      function renderSplit() {
+        const tbody = document.getElementById("splitTbody");
+        tbody.innerHTML = "";
+        orders.forEach(o => {
+          const amount = Number(o.amount || 0);
+          const commission = amount * commissionRate;
+          const reward = bigOrderReward(amount);
+          const rows = [
+            [o.date, o.recep, "接待"],
+            [o.date, o.invite, "邀约"],
+            [o.date, o.partner, "异业带单"],
+          ].filter(r => r[1]);
+
+          rows.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.className = "border-t";
+            tr.innerHTML = `
+              <td class="p-3">${r[0] || ""}</td>
+              <td class="p-3">${r[1]}</td>
+              <td class="p-3">${r[2]}</td>
+              <td class="p-3">${money(amount)}</td>
+              <td class="p-3">${(commissionRate * 100).toFixed(1)}%</td>
+              <td class="p-3">${money(commission)}</td>
+              <td class="p-3">${money(reward)}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+      }
+
+      function renderSummary() {
+        const tbody = document.getElementById("summaryTbody");
+        tbody.innerHTML = "";
+        const totalOrder = orders.reduce((s, o) => s + Number(o.amount || 0), 0);
+        const totalCommission = totalOrder * commissionRate;
+        const reward = bigOrderReward(totalOrder);
+
+        attendance.forEach((a, idx) => {
+          const personalCommission = orders.filter(o => [o.recep, o.invite, o.partner].includes(a.name))
+            .reduce((s, o) => s + Number(o.amount || 0) * commissionRate / 3, 0);
+          const inviteCount = orders.filter(o => o.invite === a.name).length;
+          const dealCount = orders.filter(o => [o.recep, o.invite, o.partner].includes(a.name)).length;
+          const inviteReward = calcInviteReward(inviteCount);
+          const dealReward = calcDealReward(dealCount);
+          const finalWage = employees[idx].base + personalCommission - latePenalty(a.late) + reward + inviteReward + dealReward;
+
+          const tr = document.createElement("tr");
+          tr.className = "border-t";
+          tr.innerHTML = `
+            <td class="p-3 font-medium">${a.name}</td>
+            <td class="p-3">${money(employees[idx].base)}</td>
+            <td class="p-3">${money(personalCommission)}</td>
+            <td class="p-3">${money(latePenalty(a.late))}</td>
+            <td class="p-3">${money(reward)}</td>
+            <td class="p-3">${inviteCount}</td>
+            <td class="p-3">${dealCount}</td>
+            <td class="p-3">${money(inviteReward)}</td>
+            <td class="p-3">${money(dealReward)}</td>
+            <td class="p-3 font-bold text-blue-700">${money(finalWage)}</td>
+          `;
+          tbody.appendChild(tr);
         });
 
-        document.getElementById("sumBody").innerHTML = Object.entries(map).map(([name, v]) => `
-          <tr>
-            <td>${name}</td>
-            <td>${v.count}</td>
-            <td>${money(v.comm)}</td>
-            <td>${money(v.bonus)}</td>
-            <td>${money(v.comm + v.bonus)}</td>
-          </tr>
-        `).join("");
+        document.getElementById("analysisWage").textContent = money(
+          attendance.reduce((sum, a, idx) => {
+            const personalCommission = orders.filter(o => [o.recep, o.invite, o.partner].includes(a.name))
+              .reduce((s, o) => s + Number(o.amount || 0) * commissionRate / 3, 0);
+            const inviteCount = orders.filter(o => o.invite === a.name).length;
+            const dealCount = orders.filter(o => [o.recep, o.invite, o.partner].includes(a.name)).length;
+            const inviteReward = calcInviteReward(inviteCount);
+            const dealReward = calcDealReward(dealCount);
+            return sum + employees[idx].base + personalCommission - latePenalty(a.late) + reward + inviteReward + dealReward;
+          }, 0)
+        );
       }
 
-      document.getElementById("addRow").onclick = () => {
-        data.push({ name: "", amount: "" });
-        render();
-      };
+      function renderPayslip() {
+        const grid = document.getElementById("payslipGrid");
+        grid.innerHTML = "";
+        const reward = bigOrderReward(orders.reduce((s, o) => s + Number(o.amount || 0), 0));
+        attendance.forEach((a, idx) => {
+          const personalCommission = orders.filter(o => [o.recep, o.invite, o.partner].includes(a.name))
+            .reduce((s, o) => s + Number(o.amount || 0) * commissionRate / 3, 0);
+          const inviteCount = orders.filter(o => o.invite === a.name).length;
+          const dealCount = orders.filter(o => [o.recep, o.invite, o.partner].includes(a.name)).length;
+          const inviteReward = calcInviteReward(inviteCount);
+          const dealReward = calcDealReward(dealCount);
+          const finalWage = employees[idx].base + personalCommission - latePenalty(a.late) + reward + inviteReward + dealReward;
 
-      document.getElementById("calc").onclick = calc;
+          const div = document.createElement("div");
+          div.className = "border rounded-xl p-4 bg-slate-50";
+          div.innerHTML = `
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-lg">${a.name}</h3>
+              <span class="text-blue-700 font-bold">${money(finalWage)}</span>
+            </div>
+            <div class="mt-3 text-sm space-y-2">
+              <div class="flex justify-between"><span>底薪</span><span>${money(employees[idx].base)}</span></div>
+              <div class="flex justify-between"><span>提成</span><span>${money(personalCommission)}</span></div>
+              <div class="flex justify-between"><span>迟到扣款</span><span>${money(latePenalty(a.late))}</span></div>
+              <div class="flex justify-between"><span>大单奖</span><span>${money(reward)}</span></div>
+              <div class="flex justify-between"><span>邀约奖励</span><span>${money(inviteReward)}</span></div>
+              <div class="flex justify-between"><span>成单奖励</span><span>${money(dealReward)}</span></div>
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+      }
 
-      document.addEventListener("input", e => {
-        const i = e.target.dataset.i;
-        const k = e.target.dataset.k;
-        if (i !== undefined && k) data[i][k] = e.target.value;
-      });
+      function bindEvents() {
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+            document.getElementById(`tab-${btn.dataset.tab}`).classList.remove("hidden");
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("tab-active"));
+            btn.classList.add("tab-active");
+          });
+        });
 
-      document.addEventListener("click", e => {
-        const d = e.target.dataset.del;
-        if (d !== undefined) {
-          data.splice(Number(d), 1);
-          if (data.length === 0) data.push({ name: "", amount: "" });
-          render();
-          calc();
-        }
-      });
+        document.getElementById("addOrderRow").onclick = () => { orders.push({ date:"", customer:"", amount:0, recep:"", invite:"", partner:"", note:"" }); renderAll(); };
+        document.getElementById("addAttendanceRow").onclick = () => { attendance.push({ name:"", days:0, late:0, leave:0, overtime:0 }); renderAll(); };
+        document.getElementById("recalcBtn").onclick = renderAll;
 
-      render();
-      calc();
+        document.addEventListener("input", (e) => {
+          const el = e.target;
+          if (el.dataset.i !== undefined) {
+            const i = Number(el.dataset.i);
+            const k = el.dataset.k;
+            orders[i][k] = k === "amount" ? Number(el.value || 0) : el.value;
+            renderAll();
+          }
+          if (el.dataset.ai !== undefined) {
+            const i = Number(el.dataset.ai);
+            const k = el.dataset.ak;
+            attendance[i][k] = k === "days" || k === "late" || k === "leave" || k === "overtime" ? Number(el.value || 0) : el.value;
+            renderAll();
+          }
+        });
+
+        document.addEventListener("click", (e) => {
+          if (e.target.classList.contains("delete-order")) {
+            orders.splice(Number(e.target.dataset.i), 1);
+            renderAll();
+          }
+          if (e.target.classList.contains("delete-att")) {
+            attendance.splice(Number(e.target.dataset.ai), 1);
+            renderAll();
+          }
+        });
+      }
+
+      bindEvents();
+      renderAll();
+      document.querySelector('.tab-btn[data-tab="home"]').classList.add("tab-active");
     </script>
   </body>
   </html>
