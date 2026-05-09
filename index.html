@@ -1,0 +1,174 @@
+id: mobile-online-lite
+name: GitHub Pages 最终版工资提成页
+type: html
+content: |-
+  <!DOCTYPE html>
+  <html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>工资提成系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body{
+        font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .card{box-shadow:0 8px 24px rgba(0,0,0,.06)}
+      .inp{
+        width:100%;
+        border:1px solid #cbd5e1;
+        border-radius:14px;
+        padding:12px 14px;
+        font-size:16px;
+        outline:none;
+        background:#fff;
+      }
+      .inp:focus{
+        border-color:#2563eb;
+        box-shadow:0 0 0 3px rgba(37,99,235,.12);
+      }
+      .btn{
+        border-radius:14px;
+        padding:12px 14px;
+        font-weight:700;
+      }
+      table{width:100%;border-collapse:collapse}
+      th,td{
+        border-bottom:1px solid #e2e8f0;
+        padding:10px 8px;
+        text-align:left;
+        font-size:14px;
+        vertical-align:middle;
+      }
+      th{background:#f8fafc}
+      .small{font-size:12px;color:#64748b}
+    </style>
+  </head>
+  <body class="bg-slate-100 text-slate-800">
+    <div class="max-w-md mx-auto min-h-screen p-3 pb-8">
+      <div class="bg-white rounded-2xl p-4 card">
+        <h1 class="text-xl font-bold">工资提成系统</h1>
+        <p class="text-sm text-slate-500 mt-1">手机打开即用，适合极简录入</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <div class="bg-white rounded-2xl p-4 card">
+          <div class="small">订单总额</div>
+          <div id="sumOrder" class="text-2xl font-bold mt-2">0</div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 card">
+          <div class="small">预计提成</div>
+          <div id="sumCom" class="text-2xl font-bold mt-2">0</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 card mt-3">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold">订单录入</h2>
+          <button id="addRow" class="btn bg-blue-600 text-white">+ 增加</button>
+        </div>
+        <div id="rows" class="space-y-3"></div>
+        <button id="calc" class="btn bg-emerald-600 text-white w-full mt-3">重新计算</button>
+        <p class="small mt-2">规则：金额 ≥ 10000 奖 50；金额 ≥ 15000 奖 150；提成默认按 5% 估算。</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 card mt-3">
+        <h2 class="text-lg font-bold mb-3">工资汇总</h2>
+        <div class="overflow-auto rounded-2xl border border-slate-200">
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>订单数</th>
+                <th>提成</th>
+                <th>奖金</th>
+                <th>合计</th>
+              </tr>
+            </thead>
+            <tbody id="sumBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 card mt-3">
+        <h2 class="text-lg font-bold mb-2">使用说明</h2>
+        <p class="text-sm leading-7 text-slate-600">1. 点“增加”添加订单。</p>
+        <p class="text-sm leading-7 text-slate-600">2. 输入员工姓名和金额。</p>
+        <p class="text-sm leading-7 text-slate-600">3. 点“重新计算”。</p>
+        <p class="text-sm leading-7 text-slate-600">4. 直接看汇总结果。</p>
+      </div>
+    </div>
+
+    <script>
+      const data = [{ name: "", amount: "" }];
+      const money = n => Number(n || 0).toFixed(0);
+
+      function render() {
+        document.getElementById("rows").innerHTML = data.map((r, i) => `
+          <div class="border border-slate-200 rounded-2xl p-3 space-y-2">
+            <input class="inp" placeholder="员工姓名" value="${r.name}" data-i="${i}" data-k="name">
+            <input class="inp" type="number" placeholder="订单金额" value="${r.amount}" data-i="${i}" data-k="amount">
+            <button class="btn bg-rose-500 text-white w-full" data-del="${i}">删除这一条</button>
+          </div>
+        `).join("");
+      }
+
+      function calc() {
+        const totalOrder = data.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const totalCom = data.reduce((s, r) => s + Number(r.amount || 0) * 0.05, 0);
+
+        document.getElementById("sumOrder").textContent = money(totalOrder);
+        document.getElementById("sumCom").textContent = money(totalCom);
+
+        const map = {};
+        data.forEach(r => {
+          const name = (r.name || "未填").trim() || "未填";
+          const a = Number(r.amount || 0);
+          const bonus = a >= 15000 ? 150 : a >= 10000 ? 50 : 0;
+          const comm = a * 0.05;
+          if (!map[name]) map[name] = { count: 0, comm: 0, bonus: 0 };
+          map[name].count += 1;
+          map[name].comm += comm;
+          map[name].bonus += bonus;
+        });
+
+        document.getElementById("sumBody").innerHTML = Object.entries(map).map(([name, v]) => `
+          <tr>
+            <td>${name}</td>
+            <td>${v.count}</td>
+            <td>${money(v.comm)}</td>
+            <td>${money(v.bonus)}</td>
+            <td>${money(v.comm + v.bonus)}</td>
+          </tr>
+        `).join("");
+      }
+
+      document.getElementById("addRow").onclick = () => {
+        data.push({ name: "", amount: "" });
+        render();
+      };
+
+      document.getElementById("calc").onclick = calc;
+
+      document.addEventListener("input", e => {
+        const i = e.target.dataset.i;
+        const k = e.target.dataset.k;
+        if (i !== undefined && k) data[i][k] = e.target.value;
+      });
+
+      document.addEventListener("click", e => {
+        const d = e.target.dataset.del;
+        if (d !== undefined) {
+          data.splice(Number(d), 1);
+          if (data.length === 0) data.push({ name: "", amount: "" });
+          render();
+          calc();
+        }
+      });
+
+      render();
+      calc();
+    </script>
+  </body>
+  </html>
